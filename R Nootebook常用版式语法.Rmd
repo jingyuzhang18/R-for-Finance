@@ -1,0 +1,395 @@
+---
+title: "R Markdown语法总结"
+author:
+- Maxine
+- 部分来源于网络
+date: "2022.07.08 updated"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+  html_document:
+    toc: yes
+    df_print: paged
+---
+
+```{r}
+#清除所有变量
+rm(list=ls()) 
+#清屏 ⌃L
+```
+
+# 0. 文本前注释
+
+**一份R Notebook 或者是R Markdown 文档的开头默认为**：
+
+    ---
+    title: "语法总结"
+    output: html_notebook  
+            # R Notebook有preview，输出代码块不运行，单独在代码块处运行结果可以输出
+           /html_document   
+            # R Markdown 只有knit，需要在插入代码块是设置是否运行或者是输出，代码是否输出请见下方链接:
+    ---
+
+  [3. 代码块设置](#jump1)
+
+**如果需要更改参数**：
+
+    ---
+    title: " "
+    subtitle: " "
+    output: 
+      html_notebook:
+        number_sections: FALSE
+        toc: TRUE
+        toc_float: TRUE
+        code_folding: show
+        fig_width: 7
+        fig_height: 4.5
+        theme: united
+        highlight: tango
+    author: " "
+    date: " "
+    ---
+
+**其中各参数可进行修改**：\
+- title：可以改为你自己的题目\
+- author： - 后面可以跟多个作者\
+- documentclass: ctexart 调用的是Ctex，不用更改\
+- fig_caption: yes #表示图上的注释保留\
+- number_sections: yes \# 表示每一节的数字保留\
+- toc: yes #是否输出目录(设置为no即不需要目录)\
+- classoption: "hyperref," \# 允许超链接、
+
+# 1. 排版
+
+-   需要在画图ggplog显示中文：
+
+```{=html}
+<!-- -->
+```
+    library(showtext)
+    showtext_auto()
+
+## 1.1 标题 `Headers`
+
+⚠️：只要判断为标题，就会在索引里显示\
+<span style="color:red">添加怎么省略一些标题
+
+    # 一级标题
+    ## 二级标题
+    ### 三级标题
+    #### 四级标题
+    ##### 五级标题
+    ######六级标题
+
+**或者是**:
+
+    一级标题
+    ===
+    二级标题
+    ---
+
+## 1.2 列表
+
+Markdown 支持有序列表和无序列表。
+
+-   **无序列表**
+
+    -   无序列表使用-、+和\*作为列表标记（符号后面空一格），输出都为▪️，下一级在原有符号前缩进两格
+
+```{=html}
+<!-- -->
+```
+    - Red
+    - Green
+    - Blue
+      - apple
+
+    * Red
+    * Green
+    * Blue
+
+    + Red
+    + Green
+    + Blue
+
+1.  **有序列表**\
+    1.1 有序列表则使用数字加英文句点.来表示：
+
+```{=html}
+<!-- -->
+```
+    1. Red(后面空两格到下一级)
+      1.1 Green
+      1.2 Blue
+
+**如果要两个连续的列表而不是一个大列表**：
+
+    1.  one
+    2.  two
+    3.  three
+
+    <!-- -->
+
+    1.  uno
+    2.  dos
+    3.  tres
+
+## 1.3 引用
+
+> 引用以\>来表示，引用中支持多级引用、标题、列表、代码块、分割线等常规语法。
+
+**常见的引用写法**：
+
+    > 这是一段引用    //在`>`后面有 1 个空格
+    >
+    >     这是引用的代码块形式    //在`>`后面有 5 个空格
+
+**分级引用**:
+
+    > 一级引用
+    >
+    > >二级引用
+    > > 
+    > > > 三级引用
+
+    > #### 这是一个四级标题
+    > 
+    > 1. 这是第一行列表项
+    > 2. 这是第二行列表项
+
+> 一级引用
+>
+> > 二级引用
+> >
+> > > 三级引用
+
+> #### 这是一个四级标题
+>
+> 1.  这是第一行列表项
+> 2.  这是第二行列表项
+
+## 1.4 首行缩进
+
+    半方：
+    行首输入&ensp;或&#8194;
+
+    全方：
+    行首输入&emsp;或&#8195;
+
+    不断行：
+    行首输入&nbsp;或&#160;
+
+    首行缩进2字符：
+    在行首输入两个&emsp;即可
+
+# 2. 文字样式
+
+    ▸ **加粗文本** 或者 __加粗文本__
+
+    ▸ *斜体文本*  或者　_斜体文本_
+
+    ▸ ***斜粗体*** 或者 ___斜粗文本___
+
+    ▸ ~~删除文本~~
+     
+    ▸ `底纹`
+
+    ▸ $框住}$
+
+    ▸ This is * not emphasized *, and \*neither is this\*
+
+    ▸ 上标和下标：H~2~O is a liquid.  2^10^ is 1024.
+
+    ▸ Verbatim：
+        To make a short span of text verbatim, put it inside backticks:
+          What is the difference between `>>=` and `>>`?
+        If the verbatim text includes a backtick, use double backticks:
+          Here is a literal backtick `` ` ``.
+          
+    ▸ Math/LaTex:
+        $P(\Omega)=1$
+      
+        $$
+        F(x)=P(X \leq x)
+        $$
+
+    ▸ 字体颜色/尺寸：
+      <font color=red>我是红色</font>
+      <font color=#008000>我是绿色</font>
+      <font color=Blue>我是蓝色</font>
+      <font size=5>我是尺寸</font>
+      <font face="黑体" color=green size=5>我是黑体，绿色，尺寸为5</font>
+      标红：
+      <span style="color:red">我是标红
+
+    ▸ 文字背景色：
+      <table><tr><td bgcolor=yellow>背景色yellow</td></tr></table>
+
+    ▸ 缩进空格：&emsp;&emsp; (必须要有`;`)
+
+    ▸ 转义字符：
+    　需要使用 MarkDown 语法中特殊的符号（比如：*，-，+)
+
+    \\　反斜杠
+    \`　反引号
+    \*　星号
+    \_　下划线
+    \+　加号
+    \-　减号
+    \#　井号
+    \.　句号
+    \~　感叹号
+
+▸ **加粗文本** 或者 **加粗文本**
+
+▸ *斜体文本* 或者　*斜体文本*
+
+▸ ***斜粗体*** 或者 ***斜粗文本***
+
+▸ ~~删除文本~~
+
+▸ `底纹`
+
+▸ $框住$
+
+▸ This is \* not emphasized \*, and \*neither is this\*
+
+▸ 强调*一部分*
+
+▸ 上标和下标：H~2~O is a liquid. 2^10^ is 1024.
+
+▸ Verbatim：What is the difference between `>>=` and `>>`?
+
+Here is a literal backtick `` ` ``.
+
+▸ 数学公式： $P(\Omega)=1$ $$
+F(x)=P(X \leq x)
+$$
+
+-   [更多公式教程](https://math.meta.stackexchange.com/questions/5020/mathjax-basic-tutorial-and-quick-reference)
+
+▸ 文字颜色尺寸：\
+- <font color=red>我是红色</font>\
+- <font color=#008000>我是绿色</font>\
+- <font color=Blue>我是蓝色</font>\
+- <font size=5>我是尺寸</font>\
+- <font face="黑体" color=green size=5>我是黑体，绿色，尺寸为5</font>\
+- <span style="color:red">我是标红
+
+▸ 背景色： 31b8e172-b470-440e-83d8-e6b185028602:dAB5AHAAZQA6AE8AQQBCAGwAQQBHAFkAQQBOAFEAQgBoAEEARABjAEEATgB3AEEAeQBBAEMAMABBAFoAQQBCAGsAQQBEAFkAQQBNAHcAQQB0AEEARABRAEEATgBnAEEAeQBBAEQASQBBAEwAUQBBADQAQQBEAFEAQQBZAGcAQgBtAEEAQwAwAEEAWQBRAEIAbQBBAEQARQBBAE8AUQBBADUAQQBEAFUAQQBZAFEAQQB4AEEARwBJAEEATQBnAEIAaQBBAEQAawBBAAoAcABvAHMAaQB0AGkAbwBuADoATQB3AEEANABBAEQAQQBBAE4AUQBBAD0ACgBwAHIAZQBmAGkAeAA6AEkAQQBBAGcAQQBBAD0APQAKAHMAbwB1AHIAYwBlADoAUABBAEIAMABBAEcARQBBAFkAZwBCAHMAQQBHAFUAQQBQAGcAQQA4AEEASABRAEEAYwBnAEEAKwBBAEQAdwBBAGQAQQBCAGsAQQBDAEEAQQBZAGcAQgBuAEEARwBNAEEAYgB3AEIAcwBBAEcAOABBAGMAZwBBADkAQQBIAGsAQQBaAFEAQgBzAEEARwB3AEEAYgB3AEIAMwBBAEQANABBAHoASQBCAHYAWgBuAEsAQwBlAFEAQgBsAEEARwB3AEEAYgBBAEIAdgBBAEgAYwBBAFAAQQBBAHYAQQBIAFEAQQBaAEEAQQArAEEARAB3AEEATAB3AEIAMABBAEgASQBBAFAAZwBBADgAQQBDADgAQQBkAEEAQgBoAEEARwBJAEEAYgBBAEIAbABBAEQANABBAAoAcwB1AGYAZgBpAHgAOgBJAEEAQQBnAEEAQwBBAEEASQBBAEEAZwBBAEMAQQBBAEkAQQBBAGcAQQBBAD0APQA=:31b8e172-b470-440e-83d8-e6b185028602\
+<!-- -->
+
+-   [颜色参考（超链接到CSDN）](https://blog.csdn.net/heimu24/article/details/81192697)
+
+# 3. 代码块设置
+
+```{r}
+code
+```
+
+在 {} 里告诉 R Studio 需要做些什么，如何进行显示，在{r}内后缀以下参数，就能达到相应的效果。
+
+（1）echo=FALSE最终的文档中不会显示代码，只会显示代码运行的结果和图像 ，echo = FALSE防止代码，但不阻止结果出现在已完成的文件中。这是嵌入图形的有用方法。\
+（2）results="hide"隐藏结果，显示图像\
+（3）include=FALSE隐藏代码和运行的输出（写报告时可使用include=FALSE来隐藏所有的代码，从而突出图像。）\
+（4）fig.show="hide" 隐藏图像\
+（5）include = FALSE防止代码和结果出现在完成的文件中。RMarkdown仍然在块中运行代码，结果可以被其他块使用。使用include=FALSE隐藏所有的代码、结果和图像，同时使用include=TRUE和results="hide"则会隐藏结果显示图像加粗样式\
+（6）message = FALSE防止代码生成的消息出现在已完成的文件中。\
+（7）warning = FALSE防止代码生成的警告出现在"完成"中。\
+（8）fig.cap = "..."向图形结果添加标题。\
+（9）R markdown 如果不想自动运行代码一般使用{r,echo = TRUE, eval = FALSE}
+
+更多详细使用方法见[knitr](https://yihui.org/knitr/options/)
+
+# 4. 链接
+
+## 4.1 链接到网址
+
+**内联方式**：
+
+      This is [Baidu's website](http://baidu.com).
+
+-   显示效果：\
+    This is [Baidu's website](http://baidu.com).
+
+**引用方式**：
+
+    I get 10 times more traffic from [Google][1] than from [Yahoo][2] or [MSN][3].  
+
+    [1]: http://google.com/        "Google" 
+    [2]: http://search.yahoo.com/  "Yahoo Search" 
+    [3]: http://search.msn.com/    "MSN Search"
+
+-   显示效果：\
+    I get 10 times more traffic from [Google](http://google.com/ "Google") than from [Yahoo](http://search.yahoo.com/ "Yahoo Search") or [MSN](http://search.msn.com/ "MSN Search").
+
+## 4.2 链接到文档内某处（设置锚点）
+
+    在需要跳转到的目标处添加锚点，语法如下：  
+    <span id="jump1">跳转到的地方1</span>  
+    <span id="jump2">跳转到的地方2</span>  
+
+    在需要设置点击跳转的位置，使用上面的id，格式类似超链接的形式：  
+    [点击跳转1](#jump1)  
+    [点击跳转2](#jump2)  
+
+✅具体示例请见[请见点击跳转到页头](#jump2)
+
+## 4.3 脚注
+
+    这是一个链接到谷歌的[^脚注]。
+
+    [^脚注]: http://www.google.com
+
+-   显示效果： 这是一个链接到谷歌的[^1]。
+
+[^1]: <http://www.google.com>
+
+## 4.4 图片
+
+    - 内联方式：
+      ![alt text](/path/to/img.jpg "Title")
+    - 引用方式：
+      ![alt text][id]
+
+      [id]: /path/to/img.jpg "Title"
+
+# 5. 常用快捷键（如何画表格）
+
+|         命令         | 快捷键 |
+|:--------------------:|:------:|
+| preview the notebook |  ⇧⌘K   |
+|       Fold All       |  ⌥⌘O   |
+|      Unfold All      |  ⌥⇧⌘O  |
+
+# 6. 画图
+
+```{r}
+plot(x, y, xlab="income in 100", ylab="food expenditure, in $", type="p")
+```
+
+```{r}
+curve(x^1, from=-2, to=2, xlab="x", ylab="y = x" )
+# Add another curve to the existing graph:
+curve(x^2, add = TRUE) 
+#plot(1:100, type='n')
+curve(sqrt(x), from=0, to=100, xlab="x", ylab="y")
+```
+
+# 7. regression
+
+```{r}
+mod1 <- lm(food_exp ~ income, data = food)
+b1 <- coef(mod1)[[1]]
+b2 <- coef(mod1)[[2]]
+smod1 <- summary(mod1)
+smod1
+
+plot(food$income, food$food_exp, 
+     xlab="weekly income in $100", 
+     ylab="weekly food expenditure in $", 
+     type = "p")
+abline(b1,b2)
+```

@@ -1,0 +1,187 @@
+---
+title: "第一讲：R 语言入门与金融数据获取"
+output:
+  html_document:
+    toc: yes
+    df_print: paged
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE, echo=TRUE, include=TRUE, eval=FALSE)
+```
+# 1. R语言入门
+## 1.1 准备工作
+```{r}
+getwd()
+setwd("D:/...")                 # 设定工作目录
+rm(list=ls())                   # 清内存
+# "Ctrl"+"L" 清除命令窗口
+
+install.packages(c("zoo","xts","timeSeries","quantmod","tseries","Ecdat")) # 安装包
+library(zoo)
+library(xts)
+library(timeSeries)
+library(quantmod)
+library(tseries)
+library(Ecdat)
+```
+
+## 1.2 日期类变量
+
+金融数据中的时间变量有三种常用类型：`Date`、`POSIXct`和`POSIXt`.
+```{r}
+Sysdate <- Sys.Date()     # 系统当前日期
+class(Sysdate)            # 日期型变量
+Sysdate
+Systime <- Sys.time()     # 系统当前时间
+class(Systime)            # "POSIXct"和"POSIXt"是两种精准到秒的时间变量
+Systime
+p <- as.POSIXlt(Systime)  # 提取日期中的各个组成部分信息
+class(p); mode(p)
+p
+p$year+1900   # p$year 自1900年以来的年份
+p$mon+1       # p$mon  表示0-11月
+p$mday        # p$mday 该月的第几天
+p$yday+1      # p$yday 该年的第几天，0-365天，元旦当天是第0天
+p$wday        # p$wday 对应周几，0-6，周日为0，其他时间和我们日常习惯一致
+# 用字符和数字生成日期对象
+t <- as.Date("2014/4/17",tz="CST") # tz为时区，CST为北京时间
+class(t)
+t
+t <- ISOdate(2014,4,17)
+class(t)                             # ISOdate()函数得到的是一个POSIXct对象
+t <- ISOdatetime(2014,4,17,15,28,48) # 继续加入小时、分钟、秒数信息
+```
+
+# 2. 时间序列程序包
+## 2.1 用`zoo`、`xts`、`timeSeries`设置时序数据对象
+```{r}
+intc=read.table(file="intc.csv",header=TRUE,sep=",")               # 读入数据
+head(intc,3); tail(intc,3)
+class(intc)
+library(zoo)
+intc.z=zoo(x=intc[,"Adj.Close"],order.by=as.Date(intc[,"Date"]))   # 转换成zoo类型
+class(intc.z)
+head(intc.z);tail(intc.z)
+class(coredata(intc.z))
+class(index(intc.z))
+plot(intc.z,main="Intel Stock Price 1980-03 to 2016-02",ylab="$")
+library(xts)
+intc.x <- xts(x=intc[,"Adj.Close"],order.by=as.Date(intc[,"Date"]))  # 转换成xts类型
+colnames(intc.x)="Adj.Close"
+head(intc.x); tail(intc.x)
+class(intc.x)
+library(timeSeries)
+intc.ts=timeSeries(intc)            # 转成timeSeries格式
+intc.ts=intc.ts[,c("Date","Adj.Close")]
+head(intc.ts); tail(intc.ts)
+class(intc.ts)
+data(Tbrate,package="Ecdat") 
+class(Tbrate)                       # 时间序列ts，多变量时序mts
+window(Tbrate,start=start(Tbrate),end=c(1950,4))
+tsp(Tbrate)
+plot(Tbrate)
+ts.plot(Tbrate,col=2:4)
+legend(x="topleft",legend=c("t-bill rate","log GDP","inflation"),
+       lty=1,col=2:4,bty="n")
+Tbrate.z=zoo(Tbrate,frequency =4)   # 将ts转换为zoo
+```
+
+## 2.2 用`quantmod`和`tseries`提取金融数据
+- quantmod是由Jeffrey Ryan编写的应用最为广泛的金融软件包，主要命令有两个：
+  - getSymbols：从多种来源获取数据，包括 Yahoo、Google、FRED、Oanda，以及本地 .csv 和 .RData 文件和 MySQL、SQLite 数据库等。
+  - chartSeries：数据绘图
+```{r}
+library(quantmod)
+args(getSymbols)     # 查看命令选项
+getSymbols("^GSPC")  # S&P500，默认 scr="yahoo"
+tail(GSPC,4)         # 查看最后4个数据
+class(GSPC)          # 数据类型
+class(index(GSPC))   # 日期类型
+dim(GSPC)            # 数据行列数
+colnames(GSPC)       # 指标名称
+tail(Cl(GSPC),4)     
+args(chartSeries)
+## chartSeries(x, type = c("auto", "candlesticks", "matchsticks",
+##     "bars", "line"), subset = NULL, show.grid = TRUE, name = NULL,
+##     time.scale = NULL, log.scale = FALSE, TA = "addVo()", TAsep = ";",
+##     line.type = "l", bar.type = "ohlc", theme = chartTheme("black"),
+##     layout = NA, major.ticks = "auto", minor.ticks = TRUE, yrange = NULL,
+##     plot = TRUE, up.col, dn.col, color.vol = TRUE, multi.col = FALSE, ...)
+chartSeries(GSPC,subset="2018::2020",theme="white") # 背景为白色，但上涨为绿色、下跌为红色
+whiteTheme <- chartTheme("white")                   # 在此基础上自定义作图模版
+names(whiteTheme)
+whiteTheme$bg.col <- "white"
+whiteTheme$dn.col <- "lightgreen"                   # 下降为淡绿色
+whiteTheme$up.col <- "pink"                         # 上涨为粉色
+whiteTheme$border <- "lightgray"
+x <- chartSeries(GSPC,subset="last 3 months",theme=whiteTheme,TA=NULL)
+class(x)
+# 选取不同时段作图
+chartSeries(GSPC["2020"],theme=whiteTheme,name="S&P 500")
+chartSeries(GSPC["2019/2020"],theme=whiteTheme,name="S&P 500")
+chartSeries(GSPC["2019-08::2020-03"],theme=whiteTheme,name="S&P 500")
+chartSeries(GSPC["20161109::"],theme=whiteTheme,name="S&P 500")
+```
+
+- 计算经拆股、除权调整后的价格。
+```{r}
+getSymbols("INTC")                 
+head(INTC)                        
+chartSeries(INTC,theme=whiteTheme,name="INTC.adj",minor.ticks=FALSE)      
+getSymbols("INTC",index.class="POSIXct",from="2000-01-01")        # 提取英特尔数据
+head(INTC)                                                        # 显示前6条
+chartSeries(INTC,theme=whiteTheme,name="INTC",minor.ticks=FALSE)  # 数据作图
+adj_INTC=adjustOHLC(INTC, 
+           adjust = c("split", "dividend"),                       # 进行拆股、除权的数据调整
+           symbol.name=deparse(substitute(x)))
+head(adj_INTC)                                                    # 显示调整后数据
+chartSeries(adj_INTC,theme=whiteTheme,name="INTC.adj",            # 调整后数据作图
+            minor.ticks=FALSE) 
+```
+
+- 提取多支股票数据
+```{r}
+symbols = c("INTC", "GOOGL","T")                   # 三只股票代码的字符向量
+getSymbols(symbols,from="2010-01-01")              # 提取数据
+prices <- Cl(get(symbols[1]))
+for(i in 2:length(symbols))
+  prices <- merge(prices,Cl(get(symbols[i])))      # 合并
+colnames(prices) <- symbols
+head(prices)
+```
+
+- 从 FED 获取3个月美国国债收益率
+```{r}
+getSymbols('DTB3',src='FRED') # 有时无法连接，可用以下命令直接从网上下载
+DTB3=read.table("https://research.stlouisfed.org/fred2/series/DTB3/downloaddata/DTB3.csv", 
+                sep = ",", header=TRUE, stringsAsFactors =FALSE)
+str(DTB3)                                                         # 查看数据类型
+DTB3=xts(as.numeric(DTB3$VALUE), order.by =as.Date(DTB3$DATE))    # 变为时间序列xts类型
+chartSeries(DTB3,theme="white",minor.ticks=FALSE)                 # 作图
+```
+- tseries包由 Adrian Trapletti 和 Kurt Hornik开发，汇集了很多时序数据分析函数和计算金融工具。主要命令有：
+  - get.hist.quote： 从 Yahoo 或 Oanda 下载数据；
+  - jarque.bera.test：正态分布的 Jarque-Bera 检验；
+  - adf.test：单位根的 ADF 检验；
+  - po.test：协整的 Phillips-Ouliaris 检验。
+```{r}
+library(tseries)
+args(get.hist.quote)
+# function (instrument = "^gdax", start, end, quote = c("Open", 
+#    "High", "Low", "Close"), provider = c("yahoo", "oanda"), 
+#    method = NULL, origin = "1899-12-30", compression = "d", 
+#    retclass = c("zoo", "its", "ts"), quiet = FALSE, drop = FALSE) 
+BA <- get.hist.quote(instrument="BA",start="2009-01-01",quote="A")
+SPY <- get.hist.quote(instrument="SPY",start="2009-01-01",quote="A")
+BA.ret <- diff(log(BA))
+SPY.ret <- diff(log(SPY))
+class(SPY)
+class(time(SPY))
+tail(SPY,3)
+# Color specification rgb(0,0,100,50,maxColorValue=255) makes dense over-plotted areas darker
+plot(x=SPY.ret, y=BA.ret, pch=20, asp=1, xlab="Market Return", ylab="Boeing Return", main="Boeing Return versus Market Return", col=rgb(0,0,100,50,maxColorValue=255))
+```

@@ -1,0 +1,114 @@
+---
+title: "ggradar"
+author:
+- 张婧彧
+- 部分来源于网络
+date: "2021.08.05 updated"
+header-includes:
+  - \usepackage{ctex}
+output:
+  pdf_document:
+    toc: yes
+    latex_engine: xelatex
+  html_notebook:
+    toc: yes
+    toc_float: yes
+  latex_engine: xelatex
+  html_document:
+    toc: yes
+    df_print: paged
+  word_document:
+    toc: yes
+---
+
+# 1.下载ggradar包
+```
+devtools::install_github('ricardo-bion/ggradar', dependencies = TRUE)
+```
+
+# 2.载入包，导入数据，画图
+> 数据说明
+
+```{r, include=FALSE}
+options(tinytex.verbose = TRUE)
+```
+### - 选取8年:
+2012
+2013
+2014
+2015
+2016
+2017
+2018
+2019
+
+### - 8个指标：
+
+|生存型消费|改善型消费|
+|:-:|:-:|
+|食品烟酒消费|生活用品及服务消费|
+|衣着消费|交通和通信消费|
+|居住消费|教育、文化和娱乐消费|
+||医疗保健消费|
+||其他用品及服务消费|
+
+### - 单位为（元）
+
+### - 图表中分别命名为：
+
+|生存型消费|改善型消费|
+|:-:|:-:|
+|Food|Service|
+|Clothes|Traffic|
+|Living|Education|
+||Medicine|
+||etc|
+
+### - 请以详细中文解释为主
+
+## 2.1 银川城镇
+```{r}
+library(ggradar)
+library(readr)
+library(dplyr)
+library(scales)
+library(tibble)
+dat <- read.csv("urban.csv",header = T,stringsAsFactors = F)
+# 显示表格数据
+dat
+library(scales)
+dat %>% 
+  mutate_at(vars(-Year), rescale) %>%
+  ggradar(base.size = 1,grid.label.size=5,axis.label.size=5,
+          # base为所有文字，axis为外圈文字，grid为圈内标签文字
+          group.point.size=1,legend.text.size=10, 
+          group.line.width=0.5,background.circle.colour='grey',
+          # 灰色背景，原图grid环颜色
+          gridline.min.colour = 'grey80',gridline.mid.colour = 'grey80',
+          gridline.max.colour = 'grey80',
+          # 设置图片横向延伸空间，防止外圈文字显示不全
+          plot.extent.x.sf = 1.2)
+```
+
+
+##  2.2 银川乡村
+
+```{r}
+library(ggradar)
+library(readr)
+library(dplyr)
+library(scales)
+library(tibble)
+dat <- read.csv("rural.csv",header = T,stringsAsFactors = F)
+# 显示表格数据
+dat
+library(scales)
+dat %>% 
+  mutate_at(vars(-Year), rescale) %>%
+  ggradar(base.size = 1,grid.label.size=5,axis.label.size=5,
+          group.point.size=1,legend.text.size=10, 
+          group.line.width=0.5,background.circle.colour='grey',
+          gridline.min.colour = 'grey80',gridline.mid.colour = 'grey80',
+          gridline.max.colour = 'grey80',plot.extent.x.sf = 1.2)
+
+```
